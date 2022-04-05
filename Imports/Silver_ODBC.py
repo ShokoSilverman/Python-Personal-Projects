@@ -1,10 +1,14 @@
+from os import system
+
+
 import_error_msg = ''
 try:
     import pandas as pd
-    import csv
-    import os
 except:
     import_error_msg += 'missing pandas pip install! \n'
+
+if len(import_error_msg)>0:
+    quit()
 
 
 
@@ -12,13 +16,17 @@ class SQL:
     # mydb = 'test'
     def test_con(self):
         print(self.mydb)
-    def query(self, query_str):
+    def query(self, query_str): #pass in a sql query, does not return
         self.mycursor.execute(query_str)
         self.mydb.commit()
-    def query_df(self, query_str):
+    def query_return(self, query_str): #pass in a sql query, returns a value
+        self.mycursor.execute(query_str)
+        myresult = self.mycursor.fetchall()
+        return myresult
+    def query_df(self, query_str): #pass in a sql query, returns a pandas dataframe
         table = pd.read_sql_query(query_str, self.mydb)
         return table
-    def insert_one(self, table, values):
+    def insert_one(self, table, values): #hand in the table name and a tuple of values 
         sql_values = "("
         for value in values:
             sql_values+=str(value)+','
@@ -26,7 +34,7 @@ class SQL:
         query_str = f"INSERT INTO {table} VALUES {str(values)}"
         self.mycursor.execute(query_str)
         self.mydb.commit()
-    def read(self, table, data_wanted='*', primary_key=None):
+    def read(self, table, data_wanted='*', primary_key=None): #pass in the table to grab data from and can optionally pass in a tuple with the fields you want back, will default to all fields
         values_wanted = str(data_wanted).removeprefix('(').removesuffix(')').replace('\'', '')
         if primary_key is None:
             table = pd.read_sql_query(f"SELECT {values_wanted} FROM {table}", self.mydb)
@@ -51,7 +59,7 @@ class SQL:
         self.mydb.commit()
 
 class my_SQL(SQL):
-    def __init__(self, username, password, host_ip, schema=None):
+    def __init__(self, username, password, host_ip, schema):  #pass in username, password, ip, and schema for the database
         try:
             import mysql.connector
         except:
@@ -59,12 +67,9 @@ class my_SQL(SQL):
             if len(import_error_msg) > 0:
                 print(import_error_msg.strip())
                 quit()
-        if schema is None:
-            self.mydb = mysql.connector.connect(user=username, password=password, host=host_ip)
-        else:
             self.mydb = mysql.connector.connect(user=username, password=password, host=host_ip, database=schema)
         self.mycursor = self.mydb.cursor()
-    def insert_many(self, table, values, num_fields):
+    def insert_many(self, table, values, num_fields): #pass in table name, the list of tuples of values [(values)] and the number of fields in the table (excluding auto incrementing fields)
         value_str = "("
         for i in range(num_fields):
             value_str+="%s,"
@@ -83,13 +88,13 @@ class SQL_server(SQL):
         if len(import_error_msg) > 0:
             print(import_error_msg.strip())
             quit()
-    def __init__(self, server_name, database):
+    def __init__(self, server_name, database): #pass in the servername (SELECT @@SERVERNAME) and the database name
         self.mydb = pyodbc.connect('Driver={SQL Server};'
                     f'Server={server_name};'
                     f'Database={database};'
                     'Trusted_Connection=yes;')
         self.mycursor = self.mydb.cursor()
-    def insert_many(self, table, values, num_fields):
+    def insert_many(self, table, values, num_fields): #pass in table name, the list of tuples of values [(values)] and the number of fields in the table (excluding auto incrementing fields)
         value_str = "("
         for i in range(num_fields):
             value_str+="?,"
@@ -99,9 +104,6 @@ class SQL_server(SQL):
         self.mycursor.executemany(query_str, values)
         self.mydb.commit()
         
-class mongo:
-
-
-
-
-
+#mongo
+#neo4j
+#redis

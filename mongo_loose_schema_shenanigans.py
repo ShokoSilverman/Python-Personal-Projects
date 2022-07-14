@@ -1,8 +1,12 @@
 from pymongo import MongoClient
+from Imports.Silver_ODBC import MongoDB as Silver_MongoDB
 
-myclient = MongoClient('mongodb+srv://SimonSilverman:SimonsPassWord@cluster0.wexky.mongodb.net/TestAtlas?retryWrites=true&w=majority&ssl=true&ssl_cert_reqs=CERT_NONE')
-mydb = myclient.TestAtlas
-mycol = mydb.TestAtlasDB
+# myclient = MongoClient('mongodb+srv://SimonSilverman:SimonsPassWord@cluster0.wexky.mongodb.net/TestAtlas?retryWrites=true&w=majority&ssl=true&ssl_cert_reqs=CERT_NONE')
+# mydb = myclient.TestAtlas
+# mycol = mydb.TestAtlasDB
+
+mongo = Silver_MongoDB('localhost',27017, 'hospital')
+
 
 def cont():
     going = input("would you like to add another field? (Yes/No): ")
@@ -25,9 +29,13 @@ def add_to_db():
 
         keep_looping = cont()
 
-    mycol.insert_one(in_dict)
+    mongo.insert_one('procedureNotes', in_dict)
     print('entry added!')
 
-add_to_db()
+while True:
+    add_to_db()
+    next = input('would you like to add another entry? ')
+    if next != 'Y' or next != 'y':
+        break
 
 

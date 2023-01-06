@@ -36,8 +36,8 @@ people_purchases = pd.DataFrame(data, index=["Simon", "Marc", "Easterly", "Jakob
 #people_purchases.loc["Marc", 'oranges'] = 25 #locate a field in the dataframe using user defined index and and key and update it
 #print(people_purchases.loc["Marc", 'oranges'])
 
-# csv_read = pd.read_csv("Python\Python Files\simple_CSV.csv") #importing csv file as a dataframe
-# print(csv_read)
+csv_read = pd.read_csv("Python\Python Files\simple_CSV.csv") #importing csv file as a dataframe
+print(csv_read)
 
 # csv_read_index_col = pd.read_csv("Python\Python Files\simple_CSV.csv", index_col=0) #importing csv file as a dataframe using column 0 as the index
 # print(csv_read_index_col)
